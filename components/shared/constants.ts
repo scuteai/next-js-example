@@ -1,0 +1,13 @@
+export const CARD_WIDTH_CLASS = "w-[400px] mx-auto";
+
+export const views = {
+  SIGN_IN_OR_UP: "SIGN_IN_OR_UP",
+  MAGIC_VERIFYING: "MAGIC_VERIFYING",
+  WEBAUTHN: "WEBAUTHN",
+};
+
+export const appStates = {
+  LOADING: "LOADING",
+  ERROR: "ERROR",
+  READY: "READY",
+};
