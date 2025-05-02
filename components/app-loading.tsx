@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { CardHeaderContent } from "./shared/card-header";
+import { CardHeaderContent } from "./auth/shared/card-header";
 
 export function AppLoading() {
   return (

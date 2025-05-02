@@ -30,8 +30,7 @@ const ClientAuthGuard = ({ children }) => {
 
   const guard = useCallback(
     () =>
-      (pathname.startsWith("/apps") || pathname.startsWith("/profile")) &&
-      session.status === "unauthenticated",
+      pathname.startsWith("/profile") && session.status === "unauthenticated",
     [session.status, pathname]
   );
 

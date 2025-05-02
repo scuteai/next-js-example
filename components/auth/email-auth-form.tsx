@@ -15,24 +15,19 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
 import { CARD_WIDTH_CLASS } from "./shared/constants";
 
-import {
-  ScuteMagicLinkIdResponse,
-  ScuteUserMetaDataSchema,
-} from "@scute/nextjs-handlers";
+import { ScuteMagicLinkIdResponse } from "@scute/nextjs-handlers";
 import { CardHeaderContent } from "./shared/card-header";
 import { Loader2 } from "lucide-react";
 
-export function AuthForm({
+export function EmailAuthForm({
   email,
   handleEmailAuth,
   handleOAuth,
-  metaFields,
   magicLinkResponse,
 }: {
   email: string;
-  handleEmailAuth: (email: string, metaFields: Record<string, string>) => void;
+  handleEmailAuth: (email: string) => void;
   handleOAuth: (provider: string) => void;
-  metaFields: ScuteUserMetaDataSchema[];
   magicLinkResponse: ScuteMagicLinkIdResponse | null;
 }) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -41,14 +36,11 @@ export function AuthForm({
     e.preventDefault();
     setIsLoading(true);
 
-    const { email, ...metaFields } = Object.fromEntries(
+    const { email } = Object.fromEntries(
       new FormData(e.target as HTMLFormElement)
     );
 
-    await handleEmailAuth(
-      email as string,
-      metaFields as Record<string, string>
-    );
+    await handleEmailAuth(email.toString());
 
     setIsLoading(false);
   };
@@ -65,40 +57,13 @@ export function AuthForm({
     return <MagicLinkLoading email={email} />;
   }
 
-  const registrationMetaFields = metaFields.filter(
-    (field) => field.visible_registration
-  );
-
   return (
     <Card className={CARD_WIDTH_CLASS}>
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl">Sign in or sign up</CardTitle>
-        <CardDescription>
-          Enter your email to continue. We&apos;ll send you a magic link.
-        </CardDescription>
+        <CardDescription>Enter your email to continue.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <div>
-          <Button
-            variant="outline"
-            disabled={isLoading}
-            className="w-full"
-            onClick={() => onOAuth("google")}
-          >
-            <Icons.google className="mr-2 h-4 w-4" />
-            Continue with Google
-          </Button>
-        </div>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with email
-            </span>
-          </div>
-        </div>
         <form onSubmit={onSubmit}>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -113,30 +78,37 @@ export function AuthForm({
                 required
               />
             </div>
-            {registrationMetaFields.map((field) => (
-              <div key={field.id} className="grid gap-2">
-                <Label htmlFor={field.field_name}>{field.name}</Label>
-                <Input
-                  id={field.field_name}
-                  name={field.field_name}
-                  required={field.required}
-                />
-              </div>
-            ))}
             <Button className="mt-1" disabled={isLoading}>
               {isLoading && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Send magic link
+              Sign in or sign up
             </Button>
           </div>
         </form>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+        <div>
+          <Button
+            variant="outline"
+            disabled={isLoading}
+            className="w-full"
+            onClick={() => onOAuth("google")}
+          >
+            <Icons.google className="mr-2 h-4 w-4" />
+            Continue with Google
+          </Button>
+        </div>
       </CardContent>
-      <CardFooter className="flex flex-col items-center justify-center gap-1 text-sm text-muted-foreground">
-        <p>
-          By continuing, you agree to our Terms of Service and Privacy Policy.
-        </p>
-      </CardFooter>
+      <CardFooter className="flex flex-col items-center justify-center gap-1 text-sm text-muted-foreground"></CardFooter>
     </Card>
   );
 }

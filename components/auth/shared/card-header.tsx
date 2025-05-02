@@ -5,12 +5,14 @@ interface CardHeaderContentProps {
   icon: ReactNode;
   title: string;
   description?: ReactNode;
+  error?: string | null;
 }
 
 export function CardHeaderContent({
   icon,
   title,
   description,
+  error,
 }: CardHeaderContentProps) {
   return (
     <CardHeader className="text-center">
@@ -19,10 +21,18 @@ export function CardHeaderContent({
           {icon}
         </div>
       </div>
-      <CardTitle className="text-2xl font-semibold tracking-tight">
+      <CardTitle
+        className={`text-2xl font-semibold tracking-tight ${
+          error ? "text-destructive" : ""
+        }`}
+      >
         {title}
       </CardTitle>
-      {description && <CardDescription>{description}</CardDescription>}
+      {description && (
+        <CardDescription className={error ? "text-destructive" : ""}>
+          {description}
+        </CardDescription>
+      )}
     </CardHeader>
   );
 }
