@@ -15,22 +15,19 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
 import { CARD_WIDTH_CLASS } from "./shared/constants";
 
-import { ScuteMagicLinkIdResponse } from "@scute/nextjs-handlers";
-import { CardHeaderContent } from "./shared/card-header";
-import { Loader2 } from "lucide-react";
+import { getMeaningfulError } from "@scute/nextjs-handlers";
+import { useScuteClient } from "@scute/react-hooks";
+import { redirect } from "next/navigation";
 
 export function EmailAuthForm({
-  email,
-  handleEmailAuth,
-  handleOAuth,
-  magicLinkResponse,
+  setEmail,
 }: {
-  email: string;
-  handleEmailAuth: (email: string) => void;
-  handleOAuth: (provider: string) => void;
-  magicLinkResponse: ScuteMagicLinkIdResponse | null;
+  setEmail: (email: string) => void;
 }) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const scuteClient = useScuteClient();
+
+  const [error, setError] = React.useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,23 +35,35 @@ export function EmailAuthForm({
 
     const { email } = Object.fromEntries(
       new FormData(e.target as HTMLFormElement)
-    );
+    ) as { email: string };
 
-    await handleEmailAuth(email.toString());
+    setEmail(email);
+    const { data, error } = await scuteClient.signInOrUp(email);
 
+    if (error) {
+      // Better error handling on sign in or up
+      console.log(error.message, error.name, error.cause, error.stack);
+      console.log(getMeaningfulError(error));
+      setError(error.message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!data) {
+      // webauthn enabled and device is registered
+      redirect("/profile");
+    }
     setIsLoading(false);
   };
 
-  const onOAuth = (provider: string) => {
+  const onOAuth = async (provider: string) => {
     setIsLoading(true);
-    handleOAuth(provider);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    await scuteClient.signInWithOAuthProvider(provider);
+    setIsLoading(false);
   };
 
-  if (!!magicLinkResponse) {
-    return <MagicLinkLoading email={email} />;
+  if (error) {
+    return <div>{JSON.stringify(error)}</div>;
   }
 
   return (
@@ -112,33 +121,3 @@ export function EmailAuthForm({
     </Card>
   );
 }
-
-const MagicLinkLoading = ({ email }: { email: string }) => {
-  return (
-    <Card className={CARD_WIDTH_CLASS}>
-      <CardHeaderContent
-        icon={<Loader2 className="h-6 w-6 text-primary animate-spin" />}
-        title="Check your email"
-        description={
-          <>
-            We&apos;ve sent you a magic link to{" "}
-            <span className="font-medium text-foreground">{email}</span>. Click
-            the link in your email to sign in.
-          </>
-        }
-      />
-      <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-        <div className="w-full">
-          <Button
-            className="w-full"
-            onClick={() => {
-              window.location.reload();
-            }}
-          >
-            Change email
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
