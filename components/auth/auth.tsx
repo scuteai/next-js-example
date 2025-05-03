@@ -1,5 +1,5 @@
 "use client";
-import { EmailAuthForm } from "@/components/auth/email-auth-form";
+import { EmailAuthForm } from "@/components/auth/auth-form";
 import { MagicVerify } from "@/components/auth/magic-verify";
 import { WebAuthnRegister } from "@/components/auth/webauthn-register";
 import { redirect } from "next/navigation";
@@ -8,11 +8,13 @@ import { AppLoading } from "@/components/app-loading";
 import { appStates, views } from "@/components/auth/shared/constants";
 import {
   AUTH_CHANGE_EVENTS,
+  ScuteIdentifier,
   ScuteTokenPayload,
   useScuteClient,
 } from "@scute/react-hooks";
 import { MagicLinkPending } from "./magic-link-pending";
 import { WebAuthnVerify } from "./webauthn-verify";
+import { VerifyOTP } from "./verify-otp";
 
 export function Auth() {
   // App states
@@ -25,7 +27,7 @@ export function Auth() {
   const [authPayload, setAuthPayload] = useState<ScuteTokenPayload | null>(
     null
   );
-  const [email, setEmail] = useState<string>("");
+  const [identifier, setIdentifier] = useState<ScuteIdentifier>("");
   const scuteClient = useScuteClient();
 
   useEffect(() => {
@@ -61,6 +63,10 @@ export function Auth() {
       if (event === AUTH_CHANGE_EVENTS.WEBAUTHN_VERIFY_START) {
         setView(views.WEBAUTHN_VERIFY);
       }
+
+      if (event === AUTH_CHANGE_EVENTS.OTP_PENDING) {
+        setView(views.OTP_PENDING);
+      }
     });
 
     return () => unsubscribe();
@@ -83,9 +89,11 @@ export function Auth() {
         {appState === appStates.READY && (
           <>
             {view === views.SIGN_IN_OR_UP && (
-              <EmailAuthForm setEmail={setEmail} />
+              <EmailAuthForm setIdentifier={setIdentifier} />
             )}
-            {view === views.MAGIC_PENDING && <MagicLinkPending email={email} />}
+            {view === views.MAGIC_PENDING && (
+              <MagicLinkPending identifier={identifier} />
+            )}
             {view === views.MAGIC_VERIFYING && (
               <MagicVerify
                 magicLinkToken={magicLinkToken}
@@ -97,7 +105,14 @@ export function Auth() {
               <WebAuthnRegister authPayload={authPayload} />
             )}
             {view === views.WEBAUTHN_VERIFY && (
-              <WebAuthnVerify identifier={email} />
+              <WebAuthnVerify identifier={identifier} />
+            )}
+            {view === views.OTP_PENDING && (
+              <VerifyOTP
+                identifier={identifier}
+                setView={setView}
+                setAuthPayload={setAuthPayload}
+              />
             )}
           </>
         )}

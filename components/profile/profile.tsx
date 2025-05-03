@@ -47,17 +47,30 @@ export function Profile() {
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-sm font-medium">Status</span>
-                  <span className="text-sm text-muted-foreground capitalize">
-                    {user.status}
-                  </span>
-                </div>
-                <div className="flex justify-between py-1">
                   <span className="text-sm font-medium">Email Verified</span>
                   <span className="text-sm text-muted-foreground">
                     {user.email_verified ? "Yes" : "No"}
                   </span>
                 </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-sm font-medium">Phone</span>
+                  <span className="text-sm text-muted-foreground">
+                    {user.phone}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-sm font-medium">Phone Verified</span>
+                  <span className="text-sm text-muted-foreground">
+                    {user.phone_verified ? "Yes" : "No"}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-sm font-medium">Status</span>
+                  <span className="text-sm text-muted-foreground capitalize">
+                    {user.status}
+                  </span>
+                </div>
+
                 <Separator className="my-2" />
                 <div className="flex justify-between py-1">
                   <span className="text-sm font-medium">Signup Date</span>

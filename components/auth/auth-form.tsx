@@ -15,21 +15,47 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
 import { CARD_WIDTH_CLASS } from "./shared/constants";
 
-import { getMeaningfulError } from "@scute/nextjs-handlers";
+import { getMeaningfulError, ScuteIdentifier } from "@scute/nextjs-handlers";
 import { useScuteClient } from "@scute/react-hooks";
 import { redirect } from "next/navigation";
 
 export function EmailAuthForm({
-  setEmail,
+  setIdentifier,
 }: {
-  setEmail: (email: string) => void;
+  setIdentifier: (identifier: ScuteIdentifier) => void;
 }) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const scuteClient = useScuteClient();
 
   const [error, setError] = React.useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onPhoneSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { phone } = Object.fromEntries(
+      new FormData(e.target as HTMLFormElement)
+    ) as { phone: string };
+
+    setIdentifier(phone);
+    const { data, error } = await scuteClient.signInOrUp(phone);
+
+    if (error) {
+      // TODO: Better error handling on sign in or up
+      console.log(error.message, error.name, error.cause, error.stack);
+      console.log(getMeaningfulError(error));
+      setError(error.message);
+      setIsLoading(false);
+    }
+
+    if (!data) {
+      // webauthn enabled and device is registered
+      redirect("/profile");
+    }
+    setIsLoading(false);
+  };
+
+  const onEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -37,11 +63,11 @@ export function EmailAuthForm({
       new FormData(e.target as HTMLFormElement)
     ) as { email: string };
 
-    setEmail(email);
+    setIdentifier(email);
     const { data, error } = await scuteClient.signInOrUp(email);
 
     if (error) {
-      // Better error handling on sign in or up
+      // TODO: Better error handling on sign in or up
       console.log(error.message, error.name, error.cause, error.stack);
       console.log(getMeaningfulError(error));
       setError(error.message);
@@ -73,7 +99,7 @@ export function EmailAuthForm({
         <CardDescription>Enter your email to continue.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onEmailSubmit}>
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -100,9 +126,37 @@ export function EmailAuthForm({
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
+          </div>
+        </div>
+        <form onSubmit={onPhoneSubmit}>
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                placeholder="123-456-7890"
+                type="tel"
+                autoComplete="tel"
+                name="phone"
+                disabled={isLoading}
+                required
+              />
+            </div>
+            <Button className="mt-1" disabled={isLoading}>
+              {isLoading && (
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Sign in or sign up
+            </Button>
+          </div>
+        </form>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
           </div>
         </div>
         <div>

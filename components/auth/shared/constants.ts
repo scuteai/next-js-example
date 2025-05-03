@@ -6,6 +6,7 @@ export const views = {
   WEBAUTHN_REGISTER: "WEBAUTHN_REGISTER",
   WEBAUTHN_VERIFY: "WEBAUTHN_VERIFY",
   MAGIC_PENDING: "MAGIC_PENDING",
+  OTP_PENDING: "OTP_PENDING",
 };
 
 export const appStates = {

@@ -3,8 +3,13 @@ import { CARD_WIDTH_CLASS } from "./shared/constants";
 import { CardHeaderContent } from "./shared/card-header";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
+import { ScuteIdentifier } from "@scute/react-hooks";
 
-export const MagicLinkPending = ({ email }: { email: string }) => {
+export const MagicLinkPending = ({
+  identifier,
+}: {
+  identifier: ScuteIdentifier;
+}) => {
   return (
     <Card className={CARD_WIDTH_CLASS}>
       <CardHeaderContent
@@ -13,8 +18,8 @@ export const MagicLinkPending = ({ email }: { email: string }) => {
         description={
           <>
             We&apos;ve sent you a magic link to{" "}
-            <span className="font-medium text-foreground">{email}</span>. Click
-            the link in your email to sign in.
+            <span className="font-medium text-foreground">{identifier}</span>.
+            Click the link in your email to sign in.
           </>
         }
       />
