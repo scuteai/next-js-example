@@ -56,7 +56,10 @@ export function Auth() {
   useEffect(() => {
     const unsubscribe = scuteClient.onAuthStateChange(async (event) => {
       console.log({ authState: event });
-      if (event === AUTH_CHANGE_EVENTS.MAGIC_PENDING) {
+      if (
+        event === AUTH_CHANGE_EVENTS.MAGIC_PENDING ||
+        event === AUTH_CHANGE_EVENTS.MAGIC_NEW_DEVICE_PENDING
+      ) {
         setView(views.MAGIC_PENDING);
       }
 
@@ -64,7 +67,10 @@ export function Auth() {
         setView(views.WEBAUTHN_VERIFY);
       }
 
-      if (event === AUTH_CHANGE_EVENTS.OTP_PENDING) {
+      if (
+        event === AUTH_CHANGE_EVENTS.OTP_PENDING ||
+        event === AUTH_CHANGE_EVENTS.OTP_NEW_DEVICE_PENDING
+      ) {
         setView(views.OTP_PENDING);
       }
     });
@@ -82,7 +88,7 @@ export function Auth() {
   }, [scuteClient]);
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="flex flex-col items-center justify-center h-screen">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         {appState === appStates.LOADING && <AppLoading />}
         {appState === appStates.ERROR && <div>Error: {error}</div>}

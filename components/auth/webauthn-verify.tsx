@@ -11,6 +11,7 @@ import { EmailBanner } from "./shared/email-banner";
 export const WebAuthnVerify = ({ identifier }: { identifier: string }) => {
   const scuteClient = useScuteClient();
 
+  const isEmail = identifier.includes("@");
   return (
     <Card className={CARD_WIDTH_CLASS}>
       <CardHeaderContent
@@ -23,10 +24,14 @@ export const WebAuthnVerify = ({ identifier }: { identifier: string }) => {
         <Button
           className="w-full"
           onClick={() => {
-            scuteClient.sendLoginMagicLink(identifier);
+            if (isEmail) {
+              scuteClient.sendLoginMagicLink(identifier);
+            } else {
+              scuteClient.sendLoginOtp(identifier);
+            }
           }}
         >
-          Sign in with magic link
+          Sign in with {isEmail ? "magic link" : "OTP"}
         </Button>
         <Button
           variant="outline"

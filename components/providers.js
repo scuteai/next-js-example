@@ -26,12 +26,14 @@ function AuthProvider({ children }) {
 const ClientAuthGuard = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const { session } = useAuth();
+  const { session, isLoading } = useAuth();
 
   const guard = useCallback(
     () =>
-      pathname.startsWith("/profile") && session.status === "unauthenticated",
-    [session.status, pathname]
+      !isLoading &&
+      pathname.startsWith("/profile") &&
+      session.status === "unauthenticated",
+    [session.status, pathname, isLoading]
   );
 
   useEffect(() => {

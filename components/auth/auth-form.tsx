@@ -36,9 +36,9 @@ export function EmailAuthForm({
     const { phone } = Object.fromEntries(
       new FormData(e.target as HTMLFormElement)
     ) as { phone: string };
-
-    setIdentifier(phone);
-    const { data, error } = await scuteClient.signInOrUp(phone);
+    const identifier = phone.replace(/[^\d]+/g, "");
+    setIdentifier(identifier);
+    const { data, error } = await scuteClient.signInOrUp(identifier);
 
     if (error) {
       // TODO: Better error handling on sign in or up
@@ -46,6 +46,7 @@ export function EmailAuthForm({
       console.log(getMeaningfulError(error));
       setError(error.message);
       setIsLoading(false);
+      return;
     }
 
     if (!data) {

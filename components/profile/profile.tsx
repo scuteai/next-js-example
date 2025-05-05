@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useAuth, useScuteClient } from "@scute/react-hooks";
 
 export function Profile() {
@@ -28,10 +28,19 @@ export function Profile() {
     });
   }, [scuteClient]);
 
+  const handleDeleteSession = async (sessionId: string) => {
+    const response = await scuteClient.revokeSession(sessionId);
+    if (response.error) {
+      console.error(response.error);
+    } else {
+      window.location.reload();
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+    <div className="grid grid-cols-1 gap-6 p-4">
       {/* User Info Card */}
-      <Card className="w-full">
+      <Card className="max-w-[500px]">
         <CardHeader>
           <CardTitle>User Information</CardTitle>
           <CardDescription>Your account details and status</CardDescription>
@@ -95,8 +104,70 @@ export function Profile() {
         </CardContent>
       </Card>
 
+      {/* Session List Card */}
+      <Card className="max-w-[500px]">
+        <CardHeader>
+          <CardTitle>Active Sessions</CardTitle>
+          <CardDescription>
+            Your current active sessions across devices
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!user ? (
+            <div className="flex justify-center items-center min-h-[200px]">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : user.sessions.length === 0 ? (
+            <div className="text-sm text-muted-foreground text-center py-4">
+              No active sessions found
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {user.sessions.map((session) => (
+                <div
+                  key={session.id}
+                  className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/50"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium capitalize">
+                        {session.browser} on {session.platform}
+                      </span>
+                    </div>
+                    <div className="flex gap-2 text-xs text-muted-foreground bg-muted rounded-md px-2 py-1">
+                      <span className="font-mono">{session.id}</span>
+                    </div>
+                    <div className="flex gap-2 text-xs text-muted-foreground">
+                      <span>
+                        Last used:{" "}
+                        {new Date(session.last_used_at).toLocaleDateString()}
+                      </span>
+                      <span>•</span>
+                      <span>{session.last_used_at_ip}</span>
+                    </div>
+                    <div className="flex gap-2 text-xs text-muted-foreground">
+                      <span className="capitalize">Type: {session.type}</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => handleDeleteSession(session.id.toString())}
+                    disabled={session.nickname === "current"}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Delete session</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* App Info Card */}
-      <Card className="w-full">
+      <Card className="max-w-[500px]">
         <CardHeader>
           <CardTitle>Application Details</CardTitle>
           <CardDescription>Current application configuration</CardDescription>
